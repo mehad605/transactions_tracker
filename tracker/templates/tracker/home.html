@@ -1,0 +1,140 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Unified Filter Section -->
+    <div class="bg-[var(--current-line)] p-6 rounded-lg">
+        <form method="GET" id="filterForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input type="hidden" name="type" value="{{ current_type }}">
+            <input type="hidden" name="range" value="{{ active_range }}">
+
+            <!-- Date Filter -->
+            <div>
+                <label class="block text-[var(--white)] mb-2">Date Range</label>
+                <div class="flex gap-2 border rounded p-1 bg-[var(--background)]">
+                    <button type="button" data-range="day" class="date-tab px-3 py-2 w-full {% if active_range == 'day' %}bg-[var(--purple)] text-white{% endif %}">Day</button>
+                    <button type="button" data-range="month" class="date-tab px-3 py-2 w-full {% if active_range == 'month' %}bg-[var(--purple)] text-white{% endif %}">Month</button>
+                    <button type="button" data-range="year" class="date-tab px-3 py-2 w-full {% if active_range == 'year' %}bg-[var(--purple)] text-white{% endif %}">Year</button>
+                </div>
+                <div class="mt-2">
+                    <input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" class="date-input w-full bg-[var(--background)] p-2 rounded" {% if active_range != 'day' %}hidden{% endif %}>
+                    <input type="month" name="month" value="{{ selected_month|date:'Y-m' }}" class="date-input w-full bg-[var(--background)] p-2 rounded" {% if active_range != 'month' %}hidden{% endif %}>
+                    <input type="number" name="year" value="{{ selected_year|date:'Y' }}" min="2000" max="2100" step="1" class="date-input w-full bg-[var(--background)] p-2 rounded" {% if active_range != 'year' %}hidden{% endif %}>
+                </div>
+            </div>
+
+            <!-- Search Filter -->
+            <div>
+                <label for="searchInput" class="block text-[var(--white)] mb-2">Search Comments</label>
+                <input type="text" id="searchInput" name="search" value="{{ request.GET.search }}" class="w-full bg-[var(--background)] p-2 rounded">
+            </div>
+
+            <!-- Category Filter -->
+            <div>
+                <label for="categorySelect" class="block text-[var(--white)] mb-2">Category</label>
+                <select id="categorySelect" name="category" class="w-full bg-[var(--background)] p-2 rounded">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.name }}" {% if request.GET.category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Apply & Clear Buttons -->
+            <div class="col-span-3 flex justify-end gap-4 mt-4">
+                <button type="submit" class="btn bg-[var(--purple)] px-6 py-2 rounded hover:bg-[var(--pink)]">
+                    🔍 Apply Filters
+                </button>
+                <button type="button" id="clearFiltersBtn" class="btn bg-[var(--comment)] px-6 py-2 rounded hover:bg-[var(--current-line)]">
+                    🗑️ Clear
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Transactions & Chart Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Transactions List -->
+        <div class="lg:col-span-2 space-y-4">
+            <div class="flex mb-6 border-b border-[var(--comment)]">
+                <a href="?type=expenses" class="px-4 py-2 {% if current_type == 'expenses' %}border-b-2 border-[var(--red)]{% endif %}">Expenses</a>
+                <a href="?type=income" class="px-4 py-2 {% if current_type == 'income' %}border-b-2 border-[var(--green)]{% endif %}">Income</a>
+            </div>
+            {% for transaction in transactions %}
+            <div class="grid grid-cols-4 items-center bg-[var(--current-line)] p-4 rounded-lg hover:bg-grey transition-colors">
+                <!-- Amount & Category Column -->
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold {% if transaction.is_expense %}text-[var(--red)]{% else %}text-[var(--green)]{% endif %}">$ {{ transaction.amount }}</span>
+                    <span class="text-[var(--white)]">{{ transaction.category }}</span>
+                </div>
+
+                <!-- Date Column with extra margin -->
+                <div class="text-sm text-[var(--white)] ml-14">
+                    {{ transaction.date }}
+                </div>
+
+                <!-- Comment Column -->
+                <div class="text-xs text-[var(--white)]">
+                    {{ transaction.comment|truncatechars:30 }}
+                </div>
+
+                <!-- Edit & Delete Column aligned to the right -->
+                <div class="flex items-center gap-4 justify-end">
+                    <a href="{% url 'edit_transaction' transaction.pk %}" class="text-[var(--cyan)] hover:text-[var(--green)]">Edit</a>
+                    <form method="post" action="{% url 'delete_transaction' transaction.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="text-[var(--red)] hover:text-[var(--orange)]">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="bg-[var(--current-line)] p-4 rounded-lg text-center text-[var(--comment)]">No transactions found</div>
+            {% endfor %}
+        </div>
+
+        <!-- Chart Section -->
+        <div class="bg-[var(--current-line)] p-4 rounded-lg">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Floating Add Button -->
+    <a href="{% url 'add_transaction' %}" class="fixed bottom-8 right-8 bg-[var(--purple)] text-white p-4 rounded-full shadow-lg hover:bg-[var(--pink)] transition-colors">
+        ➕
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.date-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('bg-[var(--purple)]', 'text-white'));
+            this.classList.add('bg-[var(--purple)]', 'text-white');
+            document.querySelectorAll('.date-input').forEach(input => input.hidden = true);
+            document.querySelector(`input[name="${this.dataset.range}"]`).hidden = false;
+            document.querySelector('input[name="range"]').value = this.dataset.range;
+        });
+    });
+    document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+        window.location.href = "{% url 'home' %}?type={{ current_type }}";
+    });
+    // new Chart(document.getElementById('categoryChart').getContext('2d'), {
+    //     type: 'doughnut', data: JSON.parse('{{ category_data|escapejs }}'), options: { responsive: true }
+    // });
+    new Chart(document.getElementById('categoryChart').getContext('2d'), {
+    type: 'doughnut',
+    data: JSON.parse('{{ category_data|escapejs }}'),
+    options: {
+        responsive: true,
+        plugins: {
+        legend: {
+            labels: {
+            color: 'white' // Set legend labels to off-white for Dracula theme
+            }
+        }
+        }
+    }
+    });
+</script>
+{% endblock %}

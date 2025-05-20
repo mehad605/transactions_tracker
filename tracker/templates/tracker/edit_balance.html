@@ -1,0 +1,16 @@
+{% extends 'tracker/base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="max-w-md mx-auto mt-10 bg-[var(--current-line)] p-6 rounded-lg">
+  <h2 class="text-2xl mb-4 text-[var(--green)]">Edit Balance</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-4">
+      {% render_field form.balance class="w-full p-2 rounded bg-[var(--background)] text-[var(--foreground)] border border-[var(--comment)]" %}
+    </div>
+    <button type="submit" class="w-full bg-[var(--purple)] text-white px-4 py-2 rounded hover:bg-[var(--pink)]">
+      Update Balance
+    </button>
+  </form>
+</div>
+{% endblock %}

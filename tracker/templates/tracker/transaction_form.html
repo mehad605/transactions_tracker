@@ -1,0 +1,100 @@
+{% extends 'tracker/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10 bg-[var(--current-line)] p-6 rounded-lg shadow-lg">
+    <h2 class="text-2xl mb-6 font-semibold text-[var(--green)] text-center">
+        {% if form.instance.pk %}Edit{% else %}Add{% endif %} Transaction
+    </h2>
+    
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Transaction Type Selection (Chips) -->
+        <div class="mb-6">
+            <label class="block text-[var(--comment)] mb-2 text-lg font-medium">Transaction Type</label>
+            <div class="flex justify-between">
+                <!-- Expense Chip -->
+                <label for="id_is_expense_expense" class="flex-1 text-center px-4 py-2 border rounded-full font-medium cursor-pointer transition-all"
+                    id="expense-chip">
+                    Expense
+                    <input type="radio" name="is_expense" id="id_is_expense_expense" value="True" class="hidden"
+                        {% if form.initial.is_expense or form.data.is_expense == "True" or not form.is_bound %}checked{% endif %}>
+                </label>
+
+                <div class="w-4"></div> <!-- Spacer for better separation -->
+
+                <!-- Income Chip -->
+                <label for="id_is_expense_income" class="flex-1 text-center px-4 py-2 border rounded-full font-medium cursor-pointer transition-all"
+                    id="income-chip">
+                    Income
+                    <input type="radio" name="is_expense" id="id_is_expense_income" value="False" class="hidden"
+                        {% if form.initial.is_expense == False or form.data.is_expense == "False" %}checked{% endif %}>
+                </label>
+            </div>
+            
+            {% if form.is_expense.errors %}
+                <div class="text-[var(--red)] text-sm mt-2">{{ form.is_expense.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Other Form Fields -->
+        {% for field in form %}
+            {% if field.name != "is_expense" %}
+                <div class="mb-4">
+                    <label class="block text-[var(--comment)] mb-2 text-lg font-medium">{{ field.label }}</label>
+                    {% render_field field class="w-full p-3 rounded-lg bg-[var(--background)] text-[var(--foreground)] border border-[var(--comment)] focus:border-[var(--purple)] focus:ring-2 focus:ring-[var(--purple)]" %}
+                    {% if field.errors %}
+                        <div class="text-[var(--red)] text-sm mt-1">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full bg-[var(--purple)] text-white px-6 py-3 rounded-lg font-semibold text-lg hover:bg-[var(--pink)] transition-all">
+            Save Transaction
+        </button>
+    </form>
+</div>
+
+<!-- JavaScript to Toggle Selection Colors -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const expenseChip = document.getElementById("expense-chip");
+        const incomeChip = document.getElementById("income-chip");
+        const expenseRadio = document.getElementById("id_is_expense_expense");
+        const incomeRadio = document.getElementById("id_is_expense_income");
+
+        function updateSelection() {
+            if (expenseRadio.checked) {
+                expenseChip.classList.add("bg-red-600", "text-white", "border-red-600");
+                expenseChip.classList.remove("bg-[var(--background)]", "text-[var(--foreground)]", "border-[var(--comment)]");
+                
+                incomeChip.classList.add("bg-[var(--background)]", "text-[var(--foreground)]", "border-[var(--comment)]");
+                incomeChip.classList.remove("bg-green-600", "text-white", "border-green-600");
+            } else {
+                incomeChip.classList.add("bg-green-600", "text-white", "border-green-600");
+                incomeChip.classList.remove("bg-[var(--background)]", "text-[var(--foreground)]", "border-[var(--comment)]");
+
+                expenseChip.classList.add("bg-[var(--background)]", "text-[var(--foreground)]", "border-[var(--comment)]");
+                expenseChip.classList.remove("bg-red-600", "text-white", "border-red-600");
+            }
+        }
+
+        // Initialize selection on load
+        updateSelection();
+
+        // Add event listeners to update selection on click
+        expenseChip.addEventListener("click", function() {
+            expenseRadio.checked = true;
+            updateSelection();
+        });
+
+        incomeChip.addEventListener("click", function() {
+            incomeRadio.checked = true;
+            updateSelection();
+        });
+    });
+</script>
+{% endblock %}

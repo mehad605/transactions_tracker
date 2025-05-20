@@ -1,0 +1,37 @@
+<!-- transactions_tracker/tracker/templates/tracker/category_management.html -->
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 bg-[var(--current-line)] p-6 rounded-lg">
+    <h2 class="text-2xl mb-4 text-[var(--green)]">Manage Categories</h2>
+    
+    <form method="post" action="{% url 'add_category' %}" class="mb-6">
+        {% csrf_token %}
+        <div class="flex gap-4">
+            <input type="text" name="name" placeholder="Category name" 
+                   class="flex-1 bg-[var(--background)] p-2 rounded text-[var(--foreground)]">
+            <select name="type" class="bg-[var(--background)] p-2 rounded text-[var(--foreground)]">
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+            </select>
+            <button type="submit" class="bg-[var(--purple)] px-4 py-2 rounded hover:bg-[var(--pink)]">
+                Add
+            </button>
+        </div>
+    </form>
+
+    <div class="space-y-2">
+        {% for category in categories %}
+        <div class="flex justify-between items-center bg-[var(--background)] p-3 rounded">
+            <span class="{% if category.is_expense %}text-[var(--red)]{% else %}text-[var(--green)]{% endif %}">
+                {{ category.name }}
+            </span>
+            <a href="{% url 'delete_category' category.pk %}" 
+               class="text-[var(--red)] hover:text-[var(--orange)]">
+                Delete
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

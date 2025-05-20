@@ -1,0 +1,36 @@
+<!-- transactions_tracker/tracker/templates/tracker/partials/_header.html -->
+<header class="bg-[var(--current-line)] py-4">
+  <nav class="container mx-auto px-4 flex justify-between items-center">
+    <a href="{% url 'home' %}" class="text-2xl font-bold text-[var(--purple)]"
+      >Finance-Tracker</a
+    >
+    <div class="flex items-center space-x-4">
+      {% if user.is_authenticated %}
+      <span class="text-[var(--green)]"
+        >Balance: ${{ user.userprofile.balance }}</span
+      >
+      <a
+        href="{% url 'edit_balance' %}"
+        class="bg-[var(--purple)] text-white px-3 py-1 rounded hover:bg-[var(--pink)]"
+        >Edit</a
+      >
+      <a
+        href="{% url 'logout' %}"
+        class="text-[var(--red)] hover:text-[var(--orange)]"
+        >Logout</a
+      >
+      {% else %}
+      <a
+        href="{% url 'login' %}"
+        class="text-[var(--cyan)] hover:text-[var(--green)]"
+        >Login</a
+      >
+      <a
+        href="{% url 'register' %}"
+        class="bg-[var(--purple)] text-white px-3 py-1 rounded hover:bg-[var(--pink)]"
+        >Register</a
+      >
+      {% endif %}
+    </div>
+  </nav>
+</header>

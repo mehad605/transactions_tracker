@@ -1,0 +1,81 @@
+<!-- transactions_tracker/tracker/templates/tracker/auth/register.html -->
+{% extends 'tracker/base.html' %} {% load widget_tweaks %} {% block content %}
+<div class="max-w-md mx-auto mt-10 bg-[var(--current-line)] p-6 rounded-lg">
+  <h2 class="text-2xl mb-4 text-[var(--green)]">Register</h2>
+  {% if form.errors %}
+  <div class="mb-4 p-3 bg-[var(--red)] text-[var(--foreground)] rounded">
+    Please correct the errors below
+  </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-4">
+      <label class="block text-[var(--comment)] mb-2">Username</label>
+      <input
+        type="text"
+        name="username"
+        value="{{ username }}"
+        class="w-full p-2 rounded bg-[var(--background)] text-[var(--foreground)]"
+        required
+      />
+      {% if form.username.errors %}
+      <div class="text-[var(--red)] text-sm mt-1">
+        {{ form.username.errors }}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-[var(--comment)] mb-2">Email</label>
+      <input
+        type="email"
+        name="email"
+        value="{{ email }}"
+        class="w-full p-2 rounded bg-[var(--background)] text-[var(--foreground)]"
+        required
+      />
+      {% if form.email.errors %}
+      <div class="text-[var(--red)] text-sm mt-1">{{ form.email.errors }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-[var(--comment)] mb-2">Password</label>
+      <input
+        type="password"
+        name="password1"
+        class="w-full p-2 rounded bg-[var(--background)] text-[var(--foreground)]"
+        required
+      />
+      {% if form.password1.errors %}
+      <div class="text-[var(--red)] text-sm mt-1">
+        {{ form.password1.errors }}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-[var(--comment)] mb-2">Confirm Password</label>
+      <input
+        type="password"
+        name="password2"
+        class="w-full p-2 rounded bg-[var(--background)] text-[var(--foreground)]"
+        required
+      />
+      {% if form.password2.errors %}
+      <div class="text-[var(--red)] text-sm mt-1">
+        {{ form.password2.errors }}
+      </div>
+      {% endif %}
+    </div>
+
+    <button
+      type="submit"
+      class="w-full bg-[var(--purple)] text-white px-4 py-2 rounded hover:bg-[var(--pink)]"
+    >
+      Register
+    </button>
+  </form>
+</div>
+{% endblock %}

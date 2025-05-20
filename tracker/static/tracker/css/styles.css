@@ -1,0 +1,17 @@
+.date-input {
+    transition: all 0.3s ease;
+}
+
+.filter-section {
+    background-color: var(--current-line);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}

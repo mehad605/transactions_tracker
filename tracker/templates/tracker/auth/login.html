@@ -1,0 +1,41 @@
+<!-- transactions_tracker/tracker/templates/tracker/auth/login.html -->
+{% extends 'tracker/base.html' %} {% block content %}
+<div class="max-w-md mx-auto mt-10 bg-[var(--current-line)] p-6 rounded-lg">
+  <h2 class="text-2xl mb-4 text-[var(--green)]">Login</h2>
+
+  {% if form.errors %}
+  <div class="mb-4 p-3 bg-[var(--red)] text-[var(--foreground)] rounded">
+    Invalid username or password
+  </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-4">
+      <label class="block text-[var(--comment)] mb-2">Username</label>
+      <input
+        type="text"
+        name="username"
+        class="w-full p-2 rounded bg-[var(--background)] text-[var(--foreground)]"
+        value="{% if form.username.value %}{{ form.username.value }}{% endif %}"
+      />
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-[var(--comment)] mb-2">Password</label>
+      <input
+        type="password"
+        name="password"
+        class="w-full p-2 rounded bg-[var(--background)] text-[var(--foreground)]"
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="w-full bg-[var(--purple)] text-white px-4 py-2 rounded hover:bg-[var(--pink)]"
+    >
+      Login
+    </button>
+  </form>
+</div>
+{% endblock %}
